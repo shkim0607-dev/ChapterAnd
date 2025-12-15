@@ -1,0 +1,1416 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Chapter & - 당신의 이야기를 남기세요</title>
+    <!-- Google Fonts -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700&family=Song+Myung&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            /* Palette: Warm & Analog */
+            --bg-paper: #FDFBF7; /* 부드러운 미색 종이 컬러 */
+            --primary-brown: #5D4037; /* 가독성 좋은 짙은 갈색 (텍스트) */
+            --accent-gold: #D4A373; /* 포인트 컬러 (중요 버튼) */
+            --soft-blue: #78909C; /* 차분한 블루 (신뢰/안정) */
+            --card-white: #FFFFFF;
+            --line-color: #E0E0E0;
+            --secure-green: #2E7D32;
+            
+            /* UI Constants */
+            --nav-height: 70px;
+            --header-height: 60px;
+            --radius-L: 20px;
+            --radius-M: 12px;
+            --shadow: 0 4px 20px rgba(93, 64, 55, 0.08);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            background-color: #e9ecef; /* 데스크탑 배경 */
+            font-family: 'Noto Sans KR', sans-serif;
+            color: var(--primary-brown);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        /* Mobile Container Mockup */
+        .app-container {
+            width: 100%;
+            max-width: 420px;
+            height: 100vh;
+            max-height: 900px;
+            background-color: var(--bg-paper);
+            display: flex;
+            flex-direction: column;
+            position: relative;
+            box-shadow: 0 0 30px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+
+        /* --- Splash Screen (Loading) --- */
+        #splash-screen {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: var(--bg-paper);
+            z-index: 9999;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            transition: opacity 0.8s ease-out, visibility 0.8s;
+        }
+
+        #splash-screen.hidden {
+            opacity: 0;
+            visibility: hidden;
+            pointer-events: none;
+        }
+
+        .splash-logo {
+            font-family: 'Song Myung', serif;
+            font-size: 2.5rem;
+            color: var(--primary-brown);
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 15px;
+            animation: fadeIn 1.5s ease-in-out;
+        }
+
+        .splash-slogan {
+            font-family: 'Song Myung', serif;
+            font-size: 1.1rem;
+            color: #8D6E63;
+            letter-spacing: -0.5px;
+            animation: slideUp 1.5s ease-in-out;
+        }
+
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        @keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+
+        /* --- Global Header (Home only) --- */
+        #global-header {
+            height: var(--header-height);
+            background-color: var(--bg-paper);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 20px;
+            z-index: 10;
+            border-bottom: 1px solid rgba(0,0,0,0.03);
+            transition: all 0.3s;
+        }
+        
+        #global-header.hidden {
+            display: none;
+        }
+
+        .header-btn {
+            background: none;
+            border: none;
+            color: var(--primary-brown);
+            font-size: 1.4rem;
+            cursor: pointer;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .header-title {
+            font-family: 'Song Myung', serif;
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: var(--primary-brown);
+        }
+
+        /* Main Content Scroll Area */
+        .content-area {
+            flex: 1;
+            overflow-y: auto;
+            padding: 20px;
+            padding-bottom: 90px; /* Nav bar space */
+            scroll-behavior: smooth; /* Smooth scrolling */
+        }
+
+        /* Common Components */
+        .card {
+            background: var(--card-white);
+            border-radius: var(--radius-L);
+            padding: 24px;
+            margin-bottom: 20px;
+            box-shadow: var(--shadow);
+            border: 1px solid rgba(0,0,0,0.02);
+        }
+
+        .card-title {
+            font-size: 1.2rem;
+            font-weight: 700;
+            margin-bottom: 16px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .btn {
+            width: 100%;
+            padding: 16px;
+            border-radius: var(--radius-M);
+            border: none;
+            font-size: 1.1rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: 0.2s;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-primary { background-color: var(--primary-brown); color: white; }
+        .btn-accent { background-color: var(--accent-gold); color: white; }
+        .btn-outline { border: 1px solid var(--primary-brown); background: transparent; color: var(--primary-brown); }
+
+        /* --- View: HOME --- */
+        .welcome-msg {
+            font-size: 1.4rem;
+            margin-bottom: 20px;
+            line-height: 1.4;
+        }
+        .highlight-name { font-weight: 700; color: var(--accent-gold); border-bottom: 2px solid var(--accent-gold); }
+
+        /* Today's Question Card */
+        .daily-card {
+            background: linear-gradient(135deg, #4E342E 0%, #3E2723 100%);
+            color: #fff;
+            text-align: center;
+            padding: 30px 20px;
+            transition: all 0.5s ease;
+        }
+        .daily-label {
+            background: rgba(255,255,255,0.2);
+            padding: 6px 14px;
+            border-radius: 30px;
+            font-size: 0.9rem;
+            margin-bottom: 20px;
+            display: inline-block;
+        }
+        .question-text {
+            font-family: 'Song Myung', serif;
+            font-size: 1.6rem;
+            line-height: 1.5;
+            margin-bottom: 24px;
+            word-break: keep-all;
+        }
+
+        /* Progress Section */
+        .progress-info {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+            font-size: 1rem;
+            font-weight: 500;
+        }
+        .progress-bar-bg {
+            background: #EFEBE9;
+            height: 12px;
+            border-radius: 6px;
+            overflow: hidden;
+        }
+        .progress-bar-fill {
+            background: var(--accent-gold);
+            height: 100%;
+            width: 80%;
+            transition: width 1s ease;
+        }
+
+        /* Menu Grid */
+        .quick-menu {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        .menu-btn {
+            background: white;
+            padding: 20px;
+            border-radius: var(--radius-M);
+            box-shadow: var(--shadow);
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 10px;
+            color: var(--primary-brown);
+            cursor: pointer;
+        }
+        .menu-icon { font-size: 1.8rem; color: var(--soft-blue); }
+
+        /* --- View: RECORD (Chatbot) --- */
+        .chat-container {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+        .chat-label {
+            text-align: right;
+            font-size: 0.75rem;
+            color: #999;
+            margin-bottom: -10px;
+            margin-right: 5px;
+            animation: fadeIn 0.5s ease;
+        }
+        .chat-bubble {
+            max-width: 80%;
+            padding: 15px 20px;
+            border-radius: 20px;
+            font-size: 1.05rem;
+            line-height: 1.5;
+            position: relative;
+            animation: slideUp 0.3s ease-out;
+        }
+        .bot-bubble {
+            background-color: white;
+            border: 1px solid #eee;
+            align-self: flex-start;
+            border-top-left-radius: 4px;
+            box-shadow: var(--shadow);
+        }
+        .user-bubble {
+            background-color: var(--accent-gold);
+            color: white;
+            align-self: flex-end;
+            border-top-right-radius: 4px;
+        }
+        .input-area {
+            position: fixed;
+            bottom: var(--nav-height); /* 70px */
+            left: 50%;
+            transform: translateX(-50%);
+            width: 100%;
+            max-width: 420px;
+            padding: 15px;
+            background: var(--bg-paper);
+            border-top: 1px solid rgba(0,0,0,0.05);
+            display: flex;
+            gap: 10px;
+            z-index: 5;
+        }
+        .voice-btn {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: var(--primary-brown);
+            color: white;
+            border: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+            cursor: pointer;
+        }
+        .text-input {
+            flex: 1;
+            padding: 0 20px;
+            border-radius: 25px;
+            border: 1px solid #ccc;
+            font-size: 1rem;
+            background: white;
+        }
+
+        /* Recording Overlay */
+        #recording-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.8);
+            z-index: 999;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            color: white;
+            backdrop-filter: blur(4px);
+        }
+        
+        .recording-pulse-container {
+            position: relative;
+            width: 100px;
+            height: 100px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-bottom: 30px;
+        }
+
+        .recording-icon {
+            font-size: 2.5rem;
+            z-index: 2;
+        }
+
+        .pulse-ring {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            border: 3px solid var(--accent-gold);
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(0.8); opacity: 1; }
+            100% { transform: scale(2); opacity: 0; }
+        }
+
+        .recording-text {
+            font-size: 1.2rem;
+            font-weight: 500;
+            margin-bottom: 10px;
+        }
+
+        .recording-subtext {
+            font-size: 0.9rem;
+            opacity: 0.7;
+        }
+
+        /* --- View: SCHEDULE --- */
+        .calendar-strip {
+            display: flex;
+            justify-content: space-between;
+            background: white;
+            padding: 15px;
+            border-radius: var(--radius-M);
+            margin-bottom: 20px;
+            box-shadow: var(--shadow);
+        }
+        .date-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 5px;
+            font-size: 0.9rem;
+            color: #999;
+        }
+        .date-item.active {
+            color: var(--primary-brown);
+            font-weight: 700;
+        }
+        .date-num {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .date-item.active .date-num {
+            background-color: var(--accent-gold);
+            color: white;
+        }
+
+        .schedule-item {
+            display: flex;
+            gap: 15px;
+            padding: 15px 0;
+            border-bottom: 1px solid #eee;
+        }
+        .time-badge {
+            font-weight: 700;
+            color: var(--soft-blue);
+            min-width: 50px;
+        }
+        .event-details h4 { margin-bottom: 4px; font-size: 1.05rem; }
+        .event-details p { font-size: 0.9rem; color: #777; }
+
+        /* --- View: MY PAGE --- */
+        .profile-header {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        .avatar-lg {
+            width: 70px;
+            height: 70px;
+            border-radius: 50%;
+            background: #D7CCC8;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            color: white;
+        }
+        .plan-badge {
+            background: var(--primary-brown);
+            color: var(--accent-gold);
+            padding: 4px 10px;
+            border-radius: 4px;
+            font-size: 0.8rem;
+            font-weight: 700;
+            text-transform: uppercase;
+        }
+
+        /* Pricing Plan Cards */
+        .plan-card {
+            border: 1px solid #eee;
+            border-radius: 12px;
+            padding: 15px;
+            margin-bottom: 10px;
+            background: white;
+            transition: all 0.3s;
+        }
+        .plan-card.active {
+            border: 2px solid var(--accent-gold);
+            background-color: #FFF8E1;
+        }
+        .plan-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+        .plan-name { font-weight: 700; font-size: 1.05rem; color: var(--primary-brown); }
+        .plan-tag {
+            font-size: 0.75rem;
+            padding: 3px 8px;
+            border-radius: 4px;
+            background: #eee;
+            color: #666;
+        }
+        .plan-card.active .plan-tag {
+            background: var(--accent-gold);
+            color: white;
+        }
+        .plan-desc {
+            font-size: 0.85rem;
+            color: #666;
+            line-height: 1.4;
+        }
+        
+        /* --- SUB PAGE HEADER STYLE --- */
+        .sub-page-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 20px;
+            gap: 10px;
+            padding-top: 10px;
+        }
+        .back-btn {
+            background: none;
+            border: none;
+            font-size: 1.2rem;
+            color: var(--primary-brown);
+            cursor: pointer;
+        }
+        .page-title {
+            font-size: 1.4rem;
+            font-weight: 700;
+            font-family: 'Song Myung', serif;
+        }
+
+        /* Book Chapter List */
+        .chapter-list {
+            list-style: none;
+        }
+        .chapter-item {
+            background: white;
+            padding: 18px;
+            border-radius: var(--radius-M);
+            margin-bottom: 12px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid #f0f0f0;
+        }
+        .chapter-info h4 { font-size: 1rem; margin-bottom: 4px; }
+        .chapter-info span { font-size: 0.8rem; color: #999; }
+        .status-badge {
+            font-size: 0.75rem;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-weight: 600;
+        }
+        .st-done { background: #E8F5E9; color: var(--secure-green); }
+        .st-ing { background: #FFF3E0; color: #E65100; }
+        .st-lock { background: #ECEFF1; color: #90A4AE; }
+
+        /* Vault Items */
+        .vault-item {
+            background: #fff;
+            border: 1px solid #eee;
+            border-radius: 12px;
+            padding: 16px;
+            margin-bottom: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            cursor: pointer; /* Clickable */
+            transition: 0.2s;
+        }
+        .vault-item:active { transform: scale(0.98); }
+        .vault-icon { width: 40px; height: 40px; background: #f5f5f5; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: #555; margin-right: 15px; }
+        
+        .toggle-switch {
+            width: 40px;
+            height: 20px;
+            background: #ccc;
+            border-radius: 10px;
+            position: relative;
+            transition: 0.3s;
+        }
+        .toggle-switch.on { background: var(--secure-green); }
+        .toggle-knob {
+            width: 16px;
+            height: 16px;
+            background: white;
+            border-radius: 50%;
+            position: absolute;
+            top: 2px;
+            left: 2px;
+            transition: 0.2s;
+        }
+        .toggle-switch.on .toggle-knob { left: 22px; }
+
+        /* Service List */
+        .service-check-item {
+            display: flex;
+            gap: 15px;
+            padding: 15px 0;
+            border-bottom: 1px solid #eee;
+            cursor: pointer; /* Clickable */
+            align-items: flex-start;
+        }
+        
+        /* Bottom Navigation */
+        .nav-bar {
+            position: absolute;
+            bottom: 0;
+            width: 100%;
+            height: var(--nav-height);
+            background: white;
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            box-shadow: 0 -2px 10px rgba(0,0,0,0.05);
+            z-index: 20;
+        }
+        .nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
+            color: #BDBDBD;
+            font-size: 0.75rem;
+            cursor: pointer;
+            width: 25%;
+        }
+        .nav-item i { font-size: 1.4rem; margin-bottom: 2px; }
+        .nav-item.active { color: var(--primary-brown); font-weight: 700; }
+
+        .hidden { display: none !important; }
+    </style>
+</head>
+<body>
+
+    <div class="app-container">
+        
+        <!-- Splash Screen (Loading) -->
+        <div id="splash-screen">
+            <div class="splash-logo">
+                <i class="fa-solid fa-book-open"></i>&nbsp;Chapter &
+            </div>
+            <div class="splash-slogan">삶의 마지막 챕터, 그리고 남겨질 이야기</div>
+        </div>
+
+        <!-- Recording Overlay (Hidden by default) -->
+        <div id="recording-overlay" class="hidden" onclick="stopRecording()">
+            <div class="recording-pulse-container">
+                <div class="pulse-ring"></div>
+                <div class="pulse-ring" style="animation-delay: 0.5s;"></div>
+                <i class="fa-solid fa-microphone recording-icon"></i>
+            </div>
+            <div class="recording-text">듣고 있어요...</div>
+            <div class="recording-subtext">화면을 터치하면 녹음이 완료됩니다</div>
+        </div>
+
+        <!-- Header (Visible only on HOME) -->
+        <header id="global-header">
+            <button class="header-btn" onclick="alert('메뉴 목록이 열립니다.')">
+                <i class="fa-solid fa-bars"></i>
+            </button>
+            <div class="header-title">Chapter &</div>
+            <button class="header-btn" onclick="alert('설정 화면으로 이동합니다.')">
+                <i class="fa-solid fa-gear"></i>
+            </button>
+        </header>
+
+        <!-- 1. HOME VIEW -->
+        <main id="view-home" class="content-area">
+            <div class="welcome-msg">
+                안녕하세요, <span class="highlight-name">이순재</span>님.<br>
+                오늘도 당신의 이야기를 들려주세요.
+            </div>
+
+            <!-- Today's Question Card (ID Added for JS) -->
+            <div id="daily-question-card" class="card daily-card">
+                <div class="daily-label">오늘의 질문 #42</div>
+                <div class="question-text">
+                    "가장 그리운<br>
+                    어머니의 음식은 무엇인가요?"
+                </div>
+                <button class="btn btn-accent" onclick="switchTab('record')">
+                    <i class="fa-solid fa-pen"></i> 답변 남기기
+                </button>
+            </div>
+
+            <!-- Upcoming Schedule -->
+            <div class="card" onclick="switchTab('schedule')" style="cursor: pointer;">
+                <div class="card-title">
+                    <span>다가오는 일정</span>
+                    <i class="fa-solid fa-chevron-right" style="font-size: 0.9rem;"></i>
+                </div>
+                <div class="schedule-item" style="border: none; padding-top: 0;">
+                    <div style="background: #FFF3E0; padding: 10px; border-radius: 10px; text-align: center; min-width: 50px;">
+                        <div style="font-size: 0.8rem; color: #E65100;">오늘</div>
+                        <div style="font-weight: 700; font-size: 1.1rem; color: #E65100;">14:00</div>
+                    </div>
+                    <div>
+                        <div style="font-weight: 700; margin-bottom: 4px;">신탁 계약 서명</div>
+                        <div style="font-size: 0.9rem; color: #666;">하나은행 본점 방문</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Quick Access (Updated with 4 items) -->
+            <div class="quick-menu">
+                <div class="menu-btn" onclick="showSubPage('vault')">
+                    <i class="fa-solid fa-vault menu-icon"></i>
+                    <span style="font-weight: 600;">디지털 금고</span>
+                    <span style="font-size: 0.75rem; color: #999;">유언/계정 관리</span>
+                </div>
+                <div class="menu-btn" onclick="showSubPage('service')">
+                    <i class="fa-solid fa-user-shield menu-icon"></i>
+                    <span style="font-weight: 600;">안심 서비스</span>
+                    <span style="font-size: 0.75rem; color: #999;">사후 행정 설정</span>
+                </div>
+                <!-- Added New Menus -->
+                <div class="menu-btn" onclick="showSubPage('trust')">
+                    <i class="fa-solid fa-file-signature menu-icon"></i>
+                    <span style="font-weight: 600;">신탁 관리</span>
+                    <span style="font-size: 0.75rem; color: #999;">자산 지급 설정</span>
+                </div>
+                <div class="menu-btn" onclick="showSubPage('funeral')">
+                    <i class="fa-solid fa-champagne-glasses menu-icon"></i>
+                    <span style="font-weight: 600;">사전 장례 디자인</span>
+                    <span style="font-size: 0.75rem; color: #999;">나만의 엔딩 파티</span>
+                </div>
+            </div>
+
+            <!-- Progress (Autobiography) Link (Moved DOWN) -->
+            <div class="card" onclick="showSubPage('autobiography')" style="cursor: pointer;">
+                <div class="card-title">
+                    <span>나의 자서전 진행도</span>
+                    <span style="font-size: 0.9rem; color: var(--soft-blue);">80%</span>
+                </div>
+                <div class="progress-bar-bg">
+                    <div id="home-progress-bar" class="progress-bar-fill"></div>
+                </div>
+                <p style="margin-top: 10px; font-size: 0.9rem; color: #666;">
+                    지금까지 <strong>42개</strong>의 이야기가 모였습니다.<br>
+                    터치해서 완성된 챕터를 확인해보세요.
+                </p>
+            </div>
+        </main>
+
+        <!-- SUB PAGE: Autobiography Progress -->
+        <main id="view-autobiography" class="content-area hidden">
+            <div class="sub-page-header">
+                <button class="back-btn" onclick="goHome()"><i class="fa-solid fa-arrow-left"></i></button>
+                <div class="page-title">나의 자서전</div>
+            </div>
+
+            <!-- Book Cover Preview -->
+            <div class="card" style="background: #5D4037; color: white; display: flex; gap: 20px; align-items: center;">
+                <div style="width: 80px; height: 110px; background: #8D6E63; border: 1px solid rgba(255,255,255,0.2); display: flex; align-items: center; justify-content: center; font-family: 'Song Myung'; text-align: center; line-height: 1.2; box-shadow: 2px 2px 5px rgba(0,0,0,0.3);">
+                    이순재의<br>삶과<br>기억
+                </div>
+                <div>
+                    <h3 style="margin-bottom: 5px;">집필 진행 중</h3>
+                    <p style="font-size: 0.9rem; opacity: 0.8; margin-bottom: 10px;">총 5개 챕터 중 3개 완료</p>
+                    <button class="btn" style="background: white; color: #5D4037; font-size: 0.85rem; padding: 8px 16px;">전체 미리보기</button>
+                </div>
+            </div>
+
+            <h3 style="font-size: 1.1rem; margin-bottom: 15px; color: var(--primary-brown);">목차 (Table of Contents)</h3>
+            <ul class="chapter-list">
+                <li class="chapter-item">
+                    <div class="chapter-info">
+                        <h4>제1장. 유년의 뜰</h4>
+                        <span>고향, 부모님, 어린 시절 친구들</span>
+                    </div>
+                    <span class="status-badge st-done">작성 완료</span>
+                </li>
+                <li class="chapter-item">
+                    <div class="chapter-info">
+                        <h4>제2장. 청춘의 열정</h4>
+                        <span>학창 시절, 첫사랑, 군대 이야기</span>
+                    </div>
+                    <span class="status-badge st-done">작성 완료</span>
+                </li>
+                <li class="chapter-item">
+                    <div class="chapter-info">
+                        <h4>제3장. 가족을 꾸리다</h4>
+                        <span>결혼, 아이들의 탄생, 내 집 마련</span>
+                    </div>
+                    <span class="status-badge st-ing">작성 중</span>
+                </li>
+                <li class="chapter-item" style="opacity: 0.6;">
+                    <div class="chapter-info">
+                        <h4>제4장. 일과 성취</h4>
+                        <span>직장 생활, 은퇴, 제2의 인생</span>
+                    </div>
+                    <span class="status-badge st-lock"><i class="fa-solid fa-lock"></i> 잠김</span>
+                </li>
+                <li class="chapter-item" style="opacity: 0.6;">
+                    <div class="chapter-info">
+                        <h4>마지막 장. 남겨질 이들에게</h4>
+                        <span>유언, 당부의 말, 사랑의 메시지</span>
+                    </div>
+                    <span class="status-badge st-lock"><i class="fa-solid fa-lock"></i> 잠김</span>
+                </li>
+            </ul>
+        </main>
+
+        <!-- SUB PAGE: Digital Vault -->
+        <main id="view-vault" class="content-area hidden">
+            <div class="sub-page-header">
+                <button class="back-btn" onclick="goHome()"><i class="fa-solid fa-arrow-left"></i></button>
+                <div class="page-title">디지털 금고</div>
+            </div>
+
+            <div class="card" style="background: #2c3e50; color: white;">
+                <div style="display: flex; justify-content: space-between; align-items: flex-start;">
+                    <div>
+                        <h3 style="font-size: 1.2rem; margin-bottom: 8px;"><i class="fa-solid fa-shield-halved"></i> 보안 활성화</h3>
+                        <p style="font-size: 0.9rem; opacity: 0.8; line-height: 1.5;">
+                            등록된 자산 정보는 암호화되어<br>
+                            사후 지정된 상속인에게만 공개됩니다.
+                        </p>
+                    </div>
+                    <div style="background: rgba(255,255,255,0.1); padding: 8px 12px; border-radius: 8px; font-size: 0.8rem; white-space: nowrap; flex-shrink: 0;">
+                        <i class="fa-solid fa-check"></i> 검증 완료
+                    </div>
+                </div>
+            </div>
+
+            <h3 style="font-size: 1.1rem; margin-bottom: 15px; display: flex; justify-content: space-between; align-items: center;">
+                보관 항목 
+                <button style="border:none; background:none; color:var(--accent-gold); font-size:0.9rem;">+ 추가</button>
+            </h3>
+
+            <!-- Clickable Vault Items -->
+            <div class="vault-item" onclick="toggleSwitch(this)">
+                <div style="display:flex; align-items:center;">
+                    <div class="vault-icon"><i class="fa-brands fa-google"></i></div>
+                    <div>
+                        <div style="font-weight: 600;">구글 계정 (Gmail)</div>
+                        <div style="font-size: 0.8rem; color: #888;">ID, PW 보관 중</div>
+                    </div>
+                </div>
+                <div class="toggle-switch on"><div class="toggle-knob"></div></div>
+            </div>
+
+            <div class="vault-item" onclick="toggleSwitch(this)">
+                <div style="display:flex; align-items:center;">
+                    <div class="vault-icon" style="background:#03C75A; color:white;"><span style="font-weight:900; font-family:sans-serif;">N</span></div>
+                    <div>
+                        <div style="font-weight: 600;">네이버 블로그</div>
+                        <div style="font-size: 0.8rem; color: #888;">사후 폐쇄 설정됨</div>
+                    </div>
+                </div>
+                <div class="toggle-switch on"><div class="toggle-knob"></div></div>
+            </div>
+
+            <!-- Changed to Unregistered status -->
+            <div class="vault-item" onclick="alert('가상화폐 지갑 등록 화면으로 이동합니다.')">
+                <div style="display:flex; align-items:center;">
+                    <div class="vault-icon"><i class="fa-solid fa-bitcoin-sign"></i></div>
+                    <div>
+                        <div style="font-weight: 600; color: #999;">가상화폐 지갑 (Key)</div>
+                        <div style="font-size: 0.8rem; color: #aaa;">미등록</div>
+                    </div>
+                </div>
+                <div style="font-size: 0.85rem; color: var(--accent-gold); font-weight: 600;">등록하기 ></div>
+            </div>
+
+            <div class="card" style="margin-top: 20px;">
+                <div class="card-title" style="font-size: 1rem;">전달 시기 설정</div>
+                <div style="display: flex; justify-content: space-between; align-items: center; padding: 10px 0;">
+                    <span style="color: #555;">공개 시점</span>
+                    <span style="font-weight: 700; color: var(--primary-brown);">사망진단서 확인 후 즉시</span>
+                </div>
+            </div>
+        </main>
+
+        <!-- SUB PAGE: Peace of Mind Service -->
+        <main id="view-service" class="content-area hidden">
+            <div class="sub-page-header">
+                <button class="back-btn" onclick="goHome()"><i class="fa-solid fa-arrow-left"></i></button>
+                <div class="page-title">안심 서비스 (사후 행정)</div>
+            </div>
+
+            <div class="card" style="border: 1px solid var(--accent-gold); background: #FFF8E1;">
+                <h3 style="font-size: 1.1rem; margin-bottom: 10px;">담당 행정 전문가</h3>
+                <div style="display: flex; gap: 15px; align-items: center;">
+                    <div style="width: 50px; height: 50px; background: #ddd; border-radius: 50%; overflow: hidden;">
+                        <div style="width:100%; height:100%; display:flex; align-items:center; justify-content:center; background:#5D4037; color:white;">김</div>
+                    </div>
+                    <div>
+                        <div style="font-weight: 700;">김플래너 (장례/행정)</div>
+                        <div style="font-size: 0.85rem; color: #666;">유족분들의 복잡한 행정 절차를<br>대신 처리해드립니다.</div>
+                    </div>
+                </div>
+                <button class="btn btn-outline" style="margin-top: 15px; background:white; font-size: 0.9rem;">위임 범위 확인</button>
+            </div>
+
+            <h3 style="font-size: 1.1rem; margin-bottom: 15px; color: var(--primary-brown);">사후 자동 실행 리스트</h3>
+            <div class="card" style="padding: 10px 20px;">
+                <!-- Clickable Service Items -->
+                <div class="service-check-item" onclick="toggleCheck(this)">
+                    <i class="fa-solid fa-check-circle" style="color: var(--secure-green); font-size: 1.2rem; margin-top: 2px;"></i>
+                    <div>
+                        <div style="font-weight: 600;">금융거래 안심 상속 원스톱 신청</div>
+                        <div style="font-size: 0.8rem; color: #888;">은행, 보험, 증권 일괄 조회 신청</div>
+                    </div>
+                </div>
+                <div class="service-check-item" onclick="toggleCheck(this)">
+                    <i class="fa-solid fa-check-circle" style="color: var(--secure-green); font-size: 1.2rem; margin-top: 2px;"></i>
+                    <div>
+                        <div style="font-weight: 600;">통신 및 유료 구독 해지</div>
+                        <div style="font-size: 0.8rem; color: #888;">SKT, 넷플릭스 등 자동 결제 차단</div>
+                    </div>
+                </div>
+                <div class="service-check-item" onclick="toggleCheck(this)">
+                    <i class="fa-regular fa-circle" style="color: #ccc; font-size: 1.2rem; margin-top: 2px;"></i>
+                    <div>
+                        <div style="font-weight: 600;">SNS 추모 계정 전환</div>
+                        <div style="font-size: 0.8rem; color: #888;">페이스북, 인스타그램 (미설정)</div>
+                    </div>
+                </div>
+                <div class="service-check-item" style="border: none;" onclick="toggleCheck(this)">
+                    <i class="fa-regular fa-circle" style="color: #ccc; font-size: 1.2rem; margin-top: 2px;"></i>
+                    <div>
+                        <div style="font-weight: 600;">유품 정리 서비스</div>
+                        <div style="font-size: 0.8rem; color: #888;">가전/가구 수거 (미신청)</div>
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <!-- SUB PAGE: Trust Management (New) -->
+        <main id="view-trust" class="content-area hidden">
+            <div class="sub-page-header">
+                <button class="back-btn" onclick="goHome()"><i class="fa-solid fa-arrow-left"></i></button>
+                <div class="page-title">신탁 관리</div>
+            </div>
+
+            <!-- Asset Card -->
+            <div class="card" style="background: linear-gradient(135deg, #2E7D32 0%, #1B5E20 100%); color: white;">
+                <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 20px;">
+                    <div>
+                        <h3 style="font-size: 1.2rem; margin-bottom: 5px;">하나 100년 리빙 트러스트</h3>
+                        <p style="font-size: 0.9rem; opacity: 0.8;">Chapter& 신탁예치형 (Model B)</p>
+                    </div>
+                    <div style="background: rgba(255,255,255,0.2); padding: 5px 10px; border-radius: 6px; font-size: 0.8rem;">
+                        운용 중
+                    </div>
+                </div>
+                <div style="display: flex; justify-content: space-between; align-items: flex-end;">
+                    <div>
+                        <div style="font-size: 0.85rem; opacity: 0.8; margin-bottom: 2px;">현재 평가액</div>
+                        <div style="font-size: 1.6rem; font-weight: 700;">850,000,000원</div>
+                    </div>
+                    <div style="text-align: right;">
+                        <div style="font-size: 0.85rem; opacity: 0.8; margin-bottom: 2px;">수익률</div>
+                        <div style="font-size: 1.2rem; font-weight: 700; color: #81C784;">+4.5% <i class="fa-solid fa-arrow-trend-up"></i></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Revenue Model & Fees Info -->
+            <h3 style="font-size: 1.1rem; margin-bottom: 15px; color: var(--primary-brown);">서비스 수수료 및 정산</h3>
+            <div class="card" style="padding: 20px;">
+                <div style="display: flex; align-items: flex-start; margin-bottom: 20px;">
+                    <div style="width: 40px; color: var(--accent-gold); font-size: 1.2rem; margin-top: 2px;"><i class="fa-solid fa-hand-holding-dollar"></i></div>
+                    <div>
+                        <div style="font-weight: 600; margin-bottom: 4px;">운용 수익 공유</div>
+                        <div style="font-size: 0.85rem; color: #666; line-height: 1.4;">
+                            발생한 이자/배당 수익의 <strong>일부(10%)</strong>가 플랫폼 운영비로 차감됩니다.
+                        </div>
+                    </div>
+                </div>
+                <div style="display: flex; align-items: flex-start;">
+                    <div style="width: 40px; color: var(--primary-brown); font-size: 1.2rem; margin-top: 2px;"><i class="fa-solid fa-file-invoice-dollar"></i></div>
+                    <div>
+                        <div style="font-weight: 600; margin-bottom: 4px;">사후 자동 정산 설정</div>
+                        <div style="font-size: 0.85rem; color: #666; line-height: 1.4;">
+                            사망 확인 시, 신탁금 중 <strong>약정된 후불 이용료</strong>(500만원)가 Chapter&으로 자동 이체됩니다.
+                        </div>
+                        <div style="margin-top: 8px; font-size: 0.8rem; color: var(--secure-green); font-weight: 600;">
+                            <i class="fa-solid fa-check"></i> 설정 완료 (유언 대용 신탁)
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Payout Settings -->
+            <h3 style="font-size: 1.1rem; margin-bottom: 15px; color: var(--primary-brown);">지급 설정 (Payout)</h3>
+            <div class="card" style="padding: 0;">
+                <div style="padding: 20px; border-bottom: 1px solid #eee; display: flex; justify-content: space-between; align-items: center;">
+                    <div>
+                        <div style="font-weight: 600; margin-bottom: 4px;">월 생활비 지급</div>
+                        <div style="font-size: 0.8rem; color: #888;">매월 25일 본인 계좌 입금</div>
+                    </div>
+                    <div style="font-weight: 700; color: var(--primary-brown);">3,000,000원</div>
+                </div>
+                <div style="padding: 20px; display: flex; justify-content: space-between; align-items: center;">
+                    <div>
+                        <div style="font-weight: 600; margin-bottom: 4px;">잔여 자산 상속</div>
+                        <div style="font-size: 0.8rem; color: #888;">사후 정산금 차감 후 지급</div>
+                    </div>
+                    <div style="text-align: right;">
+                        <span style="font-size: 0.85rem; font-weight: 600;">장남, 차녀</span>
+                    </div>
+                </div>
+            </div>
+            
+            <button class="btn btn-outline" style="margin-top: 10px;" onclick="alert('하나은행 신탁 센터로 연결됩니다.')">
+                <i class="fa-solid fa-phone"></i> 신탁 센터 연결
+            </button>
+        </main>
+
+        <!-- SUB PAGE: Pre-Need Funeral Design (New) -->
+        <main id="view-funeral" class="content-area hidden">
+            <div class="sub-page-header">
+                <button class="back-btn" onclick="goHome()"><i class="fa-solid fa-arrow-left"></i></button>
+                <div class="page-title">사전 장례 디자인</div>
+            </div>
+
+            <div class="card" style="text-align: center; padding: 40px 20px; background-color: #F8F1F1;">
+                <i class="fa-solid fa-champagne-glasses" style="font-size: 2.5rem; color: var(--primary-brown); margin-bottom: 15px;"></i>
+                <h3 style="font-size: 1.3rem; margin-bottom: 10px; font-family: 'Song Myung';">"슬픔 대신, 추억을 나누는 파티"</h3>
+                <p style="font-size: 0.9rem; color: #666; line-height: 1.6;">
+                    이순재님이 원하시는<br>마지막 배웅의 모습을 디자인합니다.
+                </p>
+            </div>
+
+            <h3 style="font-size: 1.1rem; margin-bottom: 15px; color: var(--primary-brown);">나의 엔딩 노트</h3>
+            <div class="card" style="padding: 10px 20px;">
+                <div class="service-check-item" onclick="alert('영정사진 선택 화면으로 이동합니다.')">
+                    <div style="width: 40px; height: 40px; background: #eee; border-radius: 4px; display: flex; align-items: center; justify-content: center; color: #888;">
+                        <i class="fa-solid fa-image"></i>
+                    </div>
+                    <div style="flex: 1;">
+                        <div style="font-weight: 600;">영정사진 선택</div>
+                        <div style="font-size: 0.8rem; color: #888;">밝게 웃는 독사진 (선택됨)</div>
+                    </div>
+                    <i class="fa-solid fa-chevron-right" style="color: #ccc; align-self: center;"></i>
+                </div>
+                <div class="service-check-item" onclick="alert('장례 방식 설정 화면으로 이동합니다.')">
+                    <div style="width: 40px; height: 40px; background: #eee; border-radius: 4px; display: flex; align-items: center; justify-content: center; color: #888;">
+                        <i class="fa-solid fa-tree"></i>
+                    </div>
+                    <div style="flex: 1;">
+                        <div style="font-weight: 600;">장례 방식</div>
+                        <div style="font-size: 0.8rem; color: #888;">수목장 (양평 선산)</div>
+                    </div>
+                    <i class="fa-solid fa-chevron-right" style="color: #ccc; align-self: center;"></i>
+                </div>
+                <div class="service-check-item" style="border: none;" onclick="alert('BGM 리스트 화면으로 이동합니다.')">
+                    <div style="width: 40px; height: 40px; background: #eee; border-radius: 4px; display: flex; align-items: center; justify-content: center; color: #888;">
+                        <i class="fa-solid fa-music"></i>
+                    </div>
+                    <div style="flex: 1;">
+                        <div style="font-weight: 600;">배경 음악 (BGM)</div>
+                        <div style="font-size: 0.8rem; color: #888;">My Way - Frank Sinatra 외 2곡</div>
+                    </div>
+                    <i class="fa-solid fa-chevron-right" style="color: #ccc; align-self: center;"></i>
+                </div>
+            </div>
+
+            <button class="btn btn-primary">
+                <i class="fa-solid fa-pen-fancy"></i> 디자인 수정하기
+            </button>
+        </main>
+
+        <!-- 2. RECORD VIEW (Chatbot) -->
+        <main id="view-record" class="content-area hidden" style="padding-bottom: 180px;"> <!-- Increased padding for scrolling -->
+            <!-- Added Sub-page Header for Record View -->
+            <div class="sub-page-header">
+                <button class="back-btn" onclick="goHome()"><i class="fa-solid fa-arrow-left"></i></button>
+                <div class="page-title">기록</div>
+            </div>
+
+            <div class="chat-container">
+                <div class="chat-bubble bot-bubble">
+                    안녕하세요, 이순재님. <br>
+                    오늘 날씨가 참 좋네요. ☀️
+                </div>
+                <div class="chat-bubble bot-bubble">
+                    오늘의 질문을 드릴게요.<br><br>
+                    <strong>"살면서 가장 그리운 어머니의 음식은 무엇인가요?"</strong><br><br>
+                    그 음식에 담긴 추억이나 맛을 자유롭게 이야기해주세요. 목소리로 녹음하셔도 좋아요.
+                </div>
+                <!-- Answer bubble will be appended here -->
+            </div>
+            <div class="input-area">
+                <!-- Recording Button -->
+                <button class="voice-btn" onclick="startRecording()"><i class="fa-solid fa-microphone"></i></button>
+                <input type="text" class="text-input" placeholder="답변을 입력하세요..." id="chat-input" onkeypress="handleEnter(event)">
+                <button class="voice-btn" style="background: var(--accent-gold);" onclick="sendAnswer()"><i class="fa-solid fa-paper-plane"></i></button>
+            </div>
+        </main>
+
+        <!-- 3. SCHEDULE VIEW -->
+        <main id="view-schedule" class="content-area hidden">
+            <!-- Added Sub-page Header for Schedule View -->
+            <div class="sub-page-header">
+                <button class="back-btn" onclick="goHome()"><i class="fa-solid fa-arrow-left"></i></button>
+                <div class="page-title">일정</div>
+            </div>
+
+            <h2 style="margin-bottom: 15px; font-size: 1.4rem;">12월 일정</h2>
+            <div class="calendar-strip">
+                <div class="date-item"><span class="day">월</span><span class="date-num">10</span></div>
+                <div class="date-item"><span class="day">화</span><span class="date-num">11</span></div>
+                <div class="date-item active"><span class="day">수</span><span class="date-num">12</span></div>
+                <div class="date-item"><span class="day">목</span><span class="date-num">13</span></div>
+                <div class="date-item"><span class="day">금</span><span class="date-num">14</span></div>
+                <div class="date-item"><span class="day">토</span><span class="date-num">15</span></div>
+                <div class="date-item"><span class="day">일</span><span class="date-num">16</span></div>
+            </div>
+            <div class="card">
+                <div class="card-title">오늘의 일정</div>
+                <div class="schedule-item">
+                    <div class="time-badge">14:00</div>
+                    <div class="event-details">
+                        <h4>신탁 계약 서명 (하나은행)</h4>
+                        <p>장소: 하나은행 본점 (김플래너 미팅)</p>
+                    </div>
+                </div>
+            </div>
+            <div class="card">
+                <div class="card-title">이번 주 예정</div>
+                <div class="schedule-item">
+                    <div class="time-badge">12/14</div>
+                    <div class="event-details">
+                        <h4>유언 공증 (변호사 미팅)</h4>
+                        <p>장소: 서울중앙공증사무소</p>
+                    </div>
+                </div>
+                <div class="schedule-item">
+                    <div class="time-badge">12/15</div>
+                    <div class="event-details">
+                        <h4>자서전 인터뷰 (영상 촬영)</h4>
+                        <p>장소: 파주 스튜디오</p>
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <!-- 4. MY PAGE VIEW -->
+        <main id="view-mypage" class="content-area hidden">
+            <!-- Added Sub-page Header for My Page View -->
+            <div class="sub-page-header">
+                <button class="back-btn" onclick="goHome()"><i class="fa-solid fa-arrow-left"></i></button>
+                <div class="page-title">내 정보</div>
+            </div>
+
+            <div class="profile-header">
+                <div class="avatar-lg">
+                    <i class="fa-solid fa-user"></i>
+                </div>
+                <div>
+                    <h2 style="font-size: 1.5rem; margin-bottom: 5px;">이순재 님</h2>
+                    <span class="plan-badge">Chapter & Trust</span>
+                </div>
+            </div>
+
+            <!-- New Membership Card -->
+            <div class="card">
+                <div class="card-title">이용 중인 플랜</div>
+                
+                <!-- Model B: Trust (Active for this user) -->
+                <div class="plan-card active">
+                    <div class="plan-header">
+                        <span class="plan-name">Model B. 신탁형</span>
+                        <span class="plan-tag">이용 중</span>
+                    </div>
+                    <div class="plan-desc">
+                        <strong>"안전한 예치로 완성하는 프리미엄 케어"</strong><br>
+                        보험 가입이 거절된 분들도 OK. 목돈을 은행에 안전하게 보관하고, 이자로 관리 받으세요.
+                    </div>
+                </div>
+
+                <!-- Model A: Insurance (Inactive example) -->
+                <div class="plan-card" style="opacity: 0.6;">
+                    <div class="plan-header">
+                        <span class="plan-name">Model A. 보험형</span>
+                        <span class="plan-tag">추천: 4060 건강한 분</span>
+                    </div>
+                    <div class="plan-desc">
+                        <strong>"커피 몇 잔 값으로 끝내는 노후 준비"</strong><br>
+                        적은 월 납입금으로 부모님 혹은 나의 마지막을 미리 준비하세요.
+                    </div>
+                </div>
+                
+                <button class="btn btn-outline" style="font-size: 0.9rem; margin-top: 10px;">플랜 변경 문의</button>
+            </div>
+
+            <div class="card" style="border: 1px solid var(--accent-gold); background-color: #FFF8E1;">
+                <div class="card-title" style="margin-bottom: 10px;">
+                    <span>담당 플래너</span>
+                    <i class="fa-solid fa-phone" style="color: var(--primary-brown);"></i>
+                </div>
+                <div style="display: flex; align-items: center; gap: 15px;">
+                    <div style="width: 40px; height: 40px; background: #ddd; border-radius: 50%; overflow: hidden;">
+                         <div style="width:100%; height:100%; display:flex; align-items:center; justify-content:center; background:#5D4037; color:white;">김</div>
+                    </div>
+                    <div>
+                        <div style="font-weight: 700;">김플래너 (Legal & Trust)</div>
+                        <div style="font-size: 0.85rem; color: #666;">언제든 편하게 연락주세요.</div>
+                    </div>
+                </div>
+                <button class="btn btn-outline" style="margin-top: 15px; background: white; border-color: #D7CCC8; font-size: 0.95rem;" onclick="alert('김플래너에게 전화 연결합니다.')">
+                    <i class="fa-solid fa-phone"></i> 전화 상담 연결
+                </button>
+            </div>
+            
+            <div class="card">
+                <div class="card-title">고인 AI (메모리 AI) 설정</div>
+                <div style="display: flex; justify-content: space-between; align-items: center; padding: 10px 0; border-bottom: 1px solid #eee;">
+                    <div>
+                        <div style="font-weight: 600;">학습 상태</div>
+                        <div style="font-size: 0.8rem; color: #888;">답변 데이터 수집 중</div>
+                    </div>
+                    <div style="color: var(--accent-gold); font-weight: 700;">양호</div>
+                </div>
+                <div style="display: flex; justify-content: space-between; align-items: center; padding: 10px 0;">
+                    <div>
+                        <div style="font-weight: 600;">사후 전달 시기</div>
+                        <div style="font-size: 0.8rem; color: #888;">장례 절차 완료 후 49일째</div>
+                    </div>
+                    <i class="fa-solid fa-chevron-right" style="color: #ccc;"></i>
+                </div>
+                <button class="btn btn-primary" style="margin-top: 15px; font-size: 1rem;">
+                    <i class="fa-solid fa-robot"></i> AI 대화 미리보기
+                </button>
+            </div>
+             <div class="card">
+                <div class="card-title">설정</div>
+                <div style="padding: 10px 0; border-bottom: 1px solid #eee;">내 정보 수정</div>
+                <div style="padding: 10px 0; border-bottom: 1px solid #eee;">알림 설정</div>
+                <div style="padding: 10px 0; color: #e74c3c;">로그아웃</div>
+            </div>
+        </main>
+
+        <!-- Bottom Navigation -->
+        <nav class="nav-bar">
+            <div class="nav-item active" onclick="switchTab('home')">
+                <i class="fa-solid fa-house"></i>
+                <span>홈</span>
+            </div>
+            <div class="nav-item" onclick="switchTab('record')">
+                <i class="fa-solid fa-pen-nib"></i>
+                <span>기록</span>
+            </div>
+            <div class="nav-item" onclick="switchTab('schedule')">
+                <i class="fa-regular fa-calendar-check"></i>
+                <span>일정</span>
+            </div>
+            <div class="nav-item" onclick="switchTab('mypage')">
+                <i class="fa-regular fa-user"></i>
+                <span>내 정보</span>
+            </div>
+        </nav>
+    </div>
+
+    <script>
+        // Init: Splash Screen Logic
+        document.addEventListener('DOMContentLoaded', () => {
+            const splash = document.getElementById('splash-screen');
+            setTimeout(() => {
+                splash.classList.add('hidden');
+            }, 2500); 
+        });
+
+        // Navigation Logic (Tab & Sub-page)
+        function switchTab(tabName) {
+            // Hide all pages
+            document.querySelectorAll('.content-area').forEach(el => el.classList.add('hidden'));
+            
+            // Show Target
+            document.getElementById(`view-${tabName}`).classList.remove('hidden');
+
+            // Header Logic: Show Global Header only on Home
+            const globalHeader = document.getElementById('global-header');
+            if (tabName === 'home') {
+                globalHeader.classList.remove('hidden');
+            } else {
+                globalHeader.classList.add('hidden');
+            }
+
+            // Update Bottom Nav
+            document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
+            const map = { 'home': 0, 'record': 1, 'schedule': 2, 'mypage': 3 };
+            if (map[tabName] !== undefined) {
+                document.querySelectorAll('.nav-item')[map[tabName]].classList.add('active');
+            }
+        }
+
+        // Show Sub Page (hides tabs & global header)
+        function showSubPage(pageName) {
+            document.querySelectorAll('.content-area').forEach(el => el.classList.add('hidden'));
+            document.getElementById(`view-${pageName}`).classList.remove('hidden');
+            
+            // Hide Global Header for sub-pages
+            document.getElementById('global-header').classList.add('hidden');
+        }
+
+        // Back to Home
+        function goHome() {
+            switchTab('home');
+        }
+
+        // --- Interaction Logic ---
+
+        // 1. Chat Interaction & Question Completion
+        function handleEnter(e) {
+            if(e.key === 'Enter') sendAnswer();
+        }
+
+        let recordCount = 43; // Start from 43
+
+        function sendAnswer() {
+            const input = document.getElementById('chat-input');
+            const val = input.value;
+            if(!val) return;
+
+            addMessage(val, true);
+            
+            input.value = '';
+            
+            // Hide the Today's Question Card on Home Screen
+            const questionCard = document.getElementById('daily-question-card');
+            if(questionCard) {
+                questionCard.style.display = 'none';
+                
+                // Optional: Update progress bar visually to show progress
+                const pb = document.getElementById('home-progress-bar');
+                if(pb) pb.style.width = '85%'; 
+            }
+
+            setTimeout(() => {
+                addMessage('소중한 기억을 나눠주셔서 감사합니다. <br>기록이 안전하게 저장되었습니다.', false);
+            }, 800);
+        }
+
+        function addMessage(text, isUser) {
+            const container = document.querySelector('.chat-container');
+            
+            if(isUser) {
+                // Add Label (n-th record)
+                const countLabel = document.createElement('div');
+                countLabel.className = 'chat-label';
+                countLabel.innerText = `#${recordCount}번째 기록`;
+                container.appendChild(countLabel);
+                recordCount++;
+            }
+            
+            // Add Bubble
+            const bubble = document.createElement('div');
+            bubble.className = isUser ? 'chat-bubble user-bubble' : 'chat-bubble bot-bubble';
+            bubble.innerHTML = text;
+            container.appendChild(bubble);
+
+            // Scroll to bottom properly
+            const viewRecord = document.getElementById('view-record');
+            setTimeout(() => {
+                 viewRecord.scrollTo({
+                    top: viewRecord.scrollHeight,
+                    behavior: 'smooth'
+                });
+            }, 10);
+        }
+
+        // Recording Logic
+        function startRecording() {
+            document.getElementById('recording-overlay').classList.remove('hidden');
+        }
+
+        function stopRecording() {
+            document.getElementById('recording-overlay').classList.add('hidden');
+            // Simulate voice input result
+            setTimeout(() => {
+                addMessage('[음성 답변이 입력되었습니다.]', true);
+                 // Hide question on home screen as well
+                const questionCard = document.getElementById('daily-question-card');
+                if(questionCard) {
+                    questionCard.style.display = 'none';
+                    const pb = document.getElementById('home-progress-bar');
+                    if(pb) pb.style.width = '85%'; 
+                }
+                
+                setTimeout(() => {
+                    addMessage('목소리가 잘 담겼습니다. 편안하게 이야기해주셔서 감사합니다.', false);
+                }, 1000);
+            }, 500);
+        }
+
+        // 2. Toggle Switch (Vault)
+        function toggleSwitch(element) {
+            // Find the switch inside the clicked element
+            const toggle = element.querySelector('.toggle-switch');
+            if(toggle) {
+                toggle.classList.toggle('on');
+            }
+        }
+
+        // 3. Checkbox Logic (Service)
+        function toggleCheck(element) {
+            const icon = element.querySelector('i');
+            if(icon) {
+                if (icon.classList.contains('fa-check-circle')) {
+                    // Uncheck
+                    icon.classList.remove('fa-check-circle');
+                    icon.classList.add('fa-circle', 'fa-regular');
+                    icon.style.color = '#ccc';
+                } else {
+                    // Check
+                    icon.classList.remove('fa-circle', 'fa-regular');
+                    icon.classList.add('fa-check-circle', 'fa-solid');
+                    icon.style.color = 'var(--secure-green)';
+                }
+            }
+        }
+    </script>
+</body>
+</html>
