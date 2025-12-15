@@ -1,0 +1,940 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chapter & - 파트너스 어드민</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <!-- Noto Sans KR only (Clean, Corporate style like the first version) -->
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            /* First Version Palette: Navy & Gold */
+            --primary-color: #2c3e50; /* 짙은 네이비 (신뢰감) */
+            --accent-color: #d4a373; /* 차분한 골드/베이지 (품격) */
+            --bg-color: #f4f6f8; /* 쿨 그레이 배경 */
+            --surface-color: #ffffff;
+            --text-main: #333333;
+            --text-sub: #666666;
+            --border-color: #e0e0e0;
+            
+            /* Status Colors (Vivid) */
+            --status-urgent-bg: #ffebee;
+            --status-urgent-text: #c0392b; /* Strong Red */
+            --status-secure-bg: #e8f5e9;
+            --status-secure-text: #27ae60; /* Green */
+            --status-wait-bg: #fff3e0;
+            --status-wait-text: #f39c12; /* Orange */
+
+            --shadow-soft: 0 2px 10px rgba(0,0,0,0.05);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            font-family: 'Noto Sans KR', sans-serif;
+            display: flex;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        /* Sidebar - Navy Theme */
+        .sidebar {
+            width: 260px;
+            background-color: var(--primary-color);
+            color: #ecf0f1;
+            display: flex;
+            flex-direction: column;
+            padding: 24px;
+            flex-shrink: 0;
+        }
+
+        .logo {
+            margin-bottom: 50px;
+            text-align: center;
+        }
+
+        .logo-main {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--accent-color); /* Gold Logo */
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .logo-sub {
+            font-size: 0.75rem;
+            color: #bdc3c7;
+            margin-top: 5px;
+            font-weight: 300;
+        }
+
+        .menu-item {
+            padding: 14px 18px;
+            margin-bottom: 8px;
+            cursor: pointer;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            color: #bdc3c7;
+            font-weight: 400;
+        }
+
+        .menu-item:hover, .menu-item.active {
+            background-color: rgba(255,255,255,0.1);
+            color: #ffffff;
+            font-weight: 500;
+        }
+
+        /* Main Layout */
+        .main-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            overflow-y: auto;
+        }
+
+        header {
+            background-color: var(--surface-color);
+            padding: 20px 40px;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .page-header h3 {
+            font-size: 1.4rem;
+            color: var(--primary-color);
+            font-weight: 700;
+        }
+
+        .user-profile {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .profile-text {
+            text-align: right;
+            line-height: 1.3;
+        }
+
+        .avatar {
+            width: 44px;
+            height: 44px;
+            background-color: #ddd;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--text-sub);
+            font-size: 1.2rem;
+        }
+
+        /* Content Area */
+        .content-area {
+            padding: 40px;
+            max-width: 1400px;
+            margin: 0 auto;
+            width: 100%;
+        }
+
+        /* Common Card Styles */
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 24px;
+            margin-bottom: 30px;
+        }
+
+        .card {
+            background: var(--surface-color);
+            border-radius: 12px;
+            padding: 28px;
+            box-shadow: var(--shadow-soft);
+            /* border: 1px solid var(--border-color); removed for cleaner look */
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 12px;
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+        .card-title {
+            font-weight: 700;
+            font-size: 1.1rem;
+            color: var(--primary-color);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        /* Dashboard Summary Cards - Reverted to Border Left style */
+        .summary-card {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            border-left: 5px solid transparent; /* Placeholder */
+            border-radius: 8px; /* Slightly sharper */
+        }
+        .summary-label { font-size: 0.9rem; color: var(--text-sub); margin-bottom: 8px; display: flex; align-items: center; gap: 8px; }
+        .summary-val { font-size: 2rem; font-weight: 700; color: var(--primary-color); }
+        .summary-trend { font-size: 0.85rem; margin-top: 6px; }
+
+        /* Table Styles */
+        .table-container {
+            width: 100%;
+            overflow-x: auto;
+        }
+
+        .styled-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.95rem;
+        }
+
+        .styled-table th {
+            text-align: left;
+            padding: 15px;
+            color: var(--text-sub);
+            font-weight: 600;
+            border-bottom: 2px solid var(--primary-color);
+            background-color: #fafafa;
+            white-space: nowrap;
+        }
+
+        .styled-table td {
+            padding: 15px;
+            border-bottom: 1px solid #eee;
+            color: var(--text-main);
+            vertical-align: middle;
+        }
+
+        .styled-table tr:hover {
+            background-color: #f8f9fa;
+            cursor: pointer;
+        }
+
+        .customer-name {
+            font-weight: 600;
+            color: var(--primary-color);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .customer-avatar-small {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background-color: #eee;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #666;
+            font-size: 0.8rem;
+        }
+
+        /* Todo List */
+        .todo-item {
+            display: flex;
+            align-items: flex-start;
+            padding: 15px 0;
+            border-bottom: 1px solid #f0f0f0;
+        }
+        
+        .todo-time {
+            min-width: 70px;
+            font-weight: 700;
+            color: var(--accent-color);
+            font-size: 0.95rem;
+        }
+
+        .todo-content {
+            flex: 1;
+        }
+
+        .todo-badge {
+            display: inline-block;
+            padding: 3px 8px;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            margin-left: 8px;
+        }
+        .bg-urgent { background-color: var(--status-urgent-bg); color: var(--status-urgent-text); }
+        .bg-secure { background-color: var(--status-secure-bg); color: var(--status-secure-text); }
+        .bg-wait { background-color: var(--status-wait-bg); color: var(--status-wait-text); }
+
+        /* Customer Detail Header */
+        .customer-header-card {
+            background: #FFF;
+            border-radius: 12px;
+            padding: 30px;
+            box-shadow: var(--shadow-soft);
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 24px;
+        }
+
+        .customer-profile-left {
+            display: flex;
+            gap: 24px;
+            align-items: center;
+        }
+
+        .customer-avatar {
+            width: 90px;
+            height: 90px;
+            border-radius: 50%;
+            background-color: #ddd;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2.5rem;
+            color: #fff; /* Changed default to white for colored avatars */
+        }
+
+        .customer-info h2 {
+            font-size: 1.6rem;
+            margin-bottom: 8px;
+            color: var(--primary-color);
+            font-weight: 700;
+        }
+
+        .progress-bar-bg {
+            background-color: #eee;
+            height: 10px;
+            border-radius: 5px;
+            width: 100%;
+            margin-top: 10px;
+        }
+
+        .progress-bar-fill {
+            height: 100%;
+            background-color: var(--status-secure-text); /* Green for progress in first design */
+            border-radius: 5px;
+            width: 80%;
+            transition: width 0.5s ease;
+        }
+
+        /* Service & Checklist Section */
+        .service-category {
+            margin-bottom: 30px;
+        }
+
+        .category-title {
+            font-size: 1.1rem;
+            color: var(--primary-color);
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-weight: 700;
+        }
+        
+        .category-title::before {
+            content: '';
+            display: block;
+            width: 4px;
+            height: 18px;
+            background-color: var(--accent-color);
+            border-radius: 2px;
+        }
+
+        .service-item {
+            background-color: #fafafa;
+            border: 1px solid #eee;
+            border-radius: 8px;
+            padding: 16px;
+            margin-bottom: 12px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: all 0.2s;
+        }
+
+        .service-item:hover {
+            border-color: var(--primary-color);
+            background-color: #fff;
+        }
+
+        .service-meta {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .service-name {
+            font-weight: 600;
+            color: var(--text-main);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .service-desc {
+            font-size: 0.85rem;
+            color: var(--text-sub);
+        }
+
+        .service-status {
+            font-size: 0.85rem;
+            font-weight: 600;
+        }
+
+        /* Buttons */
+        .btn {
+            padding: 8px 16px;
+            border-radius: 6px;
+            border: none;
+            cursor: pointer;
+            font-weight: 600;
+            font-family: 'Noto Sans KR';
+            transition: 0.2s;
+        }
+        .btn-primary { background-color: var(--primary-color); color: #FFF; }
+        .btn-primary:hover { background-color: #1a252f; }
+        .btn-outline { border: 1px solid var(--border-color); background: transparent; color: var(--text-sub); }
+        .btn-outline:hover { border-color: var(--primary-color); color: var(--primary-color); }
+        .btn-back { margin-bottom: 15px; display: inline-flex; align-items: center; gap: 8px; font-size: 0.9rem; color: var(--text-sub); cursor: pointer; }
+        .btn-back:hover { color: var(--primary-color); }
+
+        .tag-pill {
+            font-size: 0.75rem;
+            padding: 4px 8px;
+            border-radius: 12px;
+            background-color: #f0f0f0;
+            color: var(--text-sub);
+            font-weight: 500;
+        }
+
+        .hidden { display: none; }
+    </style>
+</head>
+<body>
+
+    <!-- Sidebar -->
+    <aside class="sidebar">
+        <div class="logo">
+            <div class="logo-main">
+                <i class="fa-solid fa-book-open"></i> Chapter &
+            </div>
+            <div class="logo-sub">삶의 마지막 챕터, 그리고 남겨질 이야기</div>
+        </div>
+        
+        <!-- Updated Navigation to match the user's requested list -->
+        <nav>
+            <div class="menu-item active" onclick="showPage('dashboard', this)">
+                <i class="fa-solid fa-table-columns"></i> 대시보드
+            </div>
+            <div class="menu-item" onclick="showPage('customer-list', this)">
+                <i class="fa-solid fa-users"></i> 고객 관리
+            </div>
+            <div class="menu-item">
+                <i class="fa-solid fa-file-contract"></i> 서류 관리
+            </div>
+            <div class="menu-item">
+                <i class="fa-regular fa-calendar-check"></i> 일정 캘린더
+            </div>
+            <div class="menu-item">
+                <i class="fa-solid fa-chart-pie"></i> 통계 / 리포트
+            </div>
+        </nav>
+
+        <div class="menu-item" style="margin-top: auto;">
+            <i class="fa-solid fa-gear"></i> 설정
+        </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <header>
+            <div class="page-header">
+                <h3 id="page-title">대시보드</h3>
+            </div>
+            <div class="user-profile">
+                <div class="notification-badge" style="position: relative;">
+                    <i class="fa-regular fa-bell" style="font-size: 1.2rem; color: var(--text-sub);"></i>
+                    <span style="position: absolute; top: -5px; right: -5px; background: var(--status-urgent-text); width: 8px; height: 8px; border-radius: 50%;"></span>
+                </div>
+                <div class="profile-text">
+                    <div style="font-weight: 600; color: var(--primary-color);">김플래너 님</div>
+                    <div style="font-size: 0.8rem; color: var(--text-sub);">Legal & Trust Specialist</div>
+                </div>
+                <div class="avatar">
+                    <i class="fa-regular fa-user"></i>
+                </div>
+            </div>
+        </header>
+
+        <div class="content-area">
+            
+            <!-- 1. Dashboard View -->
+            <div id="page-dashboard">
+                <div class="dashboard-grid">
+                    <div class="card summary-card" style="border-left: 5px solid var(--primary-color);">
+                        <span class="summary-label"><i class="fa-solid fa-file-signature"></i> 유언/법적 절차 진행</span>
+                        <span class="summary-val">12<span style="font-size: 1.2rem; font-weight: 400; color: #666;">건</span></span>
+                        <span class="summary-trend" style="color: var(--status-secure-text);">공증 대기: 3건 (이번 주)</span>
+                    </div>
+                    <div class="card summary-card" style="border-left: 5px solid var(--status-secure-text);">
+                        <span class="summary-label"><i class="fa-solid fa-building-columns"></i> 신탁 매칭 완료</span>
+                        <span class="summary-val">8<span style="font-size: 1.2rem; font-weight: 400; color: #666;">건</span></span>
+                        <span class="summary-trend" style="color: var(--status-secure-text);">자산 집행 모니터링 중</span>
+                    </div>
+                    <div class="card summary-card" style="border-left: 5px solid var(--accent-color);">
+                        <span class="summary-label"><i class="fa-solid fa-vault"></i> 디지털 금고 활성</span>
+                        <span class="summary-val">35<span style="font-size: 1.2rem; font-weight: 400; color: #666;">명</span></span>
+                        <span class="summary-trend" style="color: var(--text-sub);">킬 스위치 등록 2건 추가</span>
+                    </div>
+                </div>
+
+                <div class="dashboard-grid" style="grid-template-columns: 2fr 1fr;">
+                    <div class="card">
+                        <div class="card-header">
+                            <span class="card-title"><i class="fa-solid fa-list-check"></i> 오늘의 할 일 (To-Do Checklist)</span>
+                            <button class="btn btn-outline" style="font-size: 0.8rem;">일정 추가</button>
+                        </div>
+                        <div id="todo-container">
+                            <!-- 기존 10:00 일정 유지 -->
+                            <div class="todo-item">
+                                <div class="todo-time">10:00</div>
+                                <div class="todo-content">
+                                    <div>
+                                        <span style="font-weight: 600;">이순재님 유언 공증 (변호사 대동)</span>
+                                        <span class="todo-badge bg-urgent">법적 필수</span>
+                                    </div>
+                                    <div style="color: var(--text-sub); font-size: 0.85rem; margin-top: 4px;">서울중앙공증사무소 / 증인 2명 참석 확인</div>
+                                </div>
+                                <button class="btn btn-primary" style="padding: 4px 10px; font-size: 0.8rem;">체크</button>
+                            </div>
+
+                            <!-- [추가 요청 사항] 14:00 방문 일정 추가 -->
+                            <div class="todo-item">
+                                <div class="todo-time">14:00</div>
+                                <div class="todo-content">
+                                    <div>
+                                        <span style="font-weight: 600;">박철민 고객 방문예정 - 유언장 작성</span>
+                                        <span class="todo-badge bg-wait">방문</span>
+                                    </div>
+                                    <div style="color: var(--text-sub); font-size: 0.85rem; margin-top: 4px;">자필 유언장 가이드 및 녹화 준비 (파주 사옥)</div>
+                                </div>
+                                <button class="btn btn-outline" style="padding: 4px 10px; font-size: 0.8rem;">준비</button>
+                            </div>
+
+                            <!-- [추가 요청 사항] 15:00 자산 관리 컨설팅 일정 추가 -->
+                            <div class="todo-item">
+                                <div class="todo-time">15:00</div>
+                                <div class="todo-content">
+                                    <div>
+                                        <span style="font-weight: 600;">정우성 고객 자산 관리 컨설팅 방문</span>
+                                        <span class="todo-badge bg-secure">금융</span>
+                                    </div>
+                                    <div style="color: var(--text-sub); font-size: 0.85rem; margin-top: 4px;">보유 부동산 및 현금 자산 포트폴리오 진단</div>
+                                </div>
+                                <button class="btn btn-primary" style="padding: 4px 10px; font-size: 0.8rem;">상담 시작</button>
+                            </div>
+
+                            <!-- 기존 14:00 일정 유지 -->
+                            <div class="todo-item">
+                                <div class="todo-time">14:00</div>
+                                <div class="todo-content">
+                                    <div>
+                                        <span style="font-weight: 600;">하나은행 '100년 리빙 트러스트' 신탁 계약</span>
+                                        <span class="todo-badge bg-secure">금융</span>
+                                    </div>
+                                    <div style="color: var(--text-sub); font-size: 0.85rem; margin-top: 4px;">박철민님 치매 대비 자산 신탁 최종 서명</div>
+                                </div>
+                                <button class="btn btn-outline" style="padding: 4px 10px; font-size: 0.8rem;">서류 준비</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <div class="card-header">
+                            <span class="card-title"><i class="fa-solid fa-triangle-exclamation"></i> 리스크 알림</span>
+                        </div>
+                        <div style="background: var(--status-urgent-bg); border-radius: 8px; padding: 16px; margin-bottom: 12px;">
+                            <div style="color: var(--status-urgent-text); font-weight: 600; font-size: 0.9rem; margin-bottom: 4px;">
+                                <i class="fa-solid fa-clock"></i> 유언장 갱신 필요
+                            </div>
+                            <div style="font-size: 0.85rem; color: #555;">
+                                <strong>최지훈 님</strong>의 자산 변동(부동산 매각)으로 인해 기존 유언장의 수정/공증이 시급합니다.
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 2. Customer List View -->
+            <div id="page-customer-list" class="hidden">
+                <div class="card">
+                    <div class="card-header">
+                        <span class="card-title">관리 고객 리스트</span>
+                        <div style="display:flex; gap: 10px;">
+                            <input type="text" placeholder="고객명 검색..." style="padding: 8px; border: 1px solid var(--border-color); border-radius: 6px;">
+                            <button class="btn btn-primary">+ 신규 고객 등록</button>
+                        </div>
+                    </div>
+                    <div class="table-container">
+                        <table class="styled-table">
+                            <thead>
+                                <tr>
+                                    <th>고객명 / 나이</th>
+                                    <th>등급</th>
+                                    <th>법적 준비 (Will)</th>
+                                    <th>신탁/자산 (Trust)</th>
+                                    <th>메모리얼 진행</th>
+                                    <th>다음 일정</th>
+                                </tr>
+                            </thead>
+                            <tbody id="customer-table-body">
+                                <!-- JS Populated -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 3. Customer Detail View -->
+            <div id="page-customer-detail" class="hidden">
+                <div class="btn-back" onclick="showPage('customer-list')">
+                    <i class="fa-solid fa-arrow-left"></i> 목록으로 돌아가기
+                </div>
+
+                <!-- Top Profile -->
+                <div class="customer-header-card">
+                    <div class="customer-profile-left">
+                        <div class="customer-avatar" id="detail-avatar">
+                            <i class="fa-solid fa-user-shield"></i>
+                        </div>
+                        <div class="customer-info">
+                            <h2 id="detail-name">이순재 (82세)</h2>
+                            <p id="detail-grade-info" style="color: var(--text-sub); margin-bottom: 5px;">Chapter & Premium | 신탁/법률 집중 관리</p>
+                            <div id="detail-tags" style="display: flex; gap: 10px; margin-top: 10px;">
+                                <span class="tag-pill">#유언공증 완료</span>
+                                <span class="tag-pill" style="background:var(--status-secure-bg); color:var(--status-secure-text);">#신탁계약 체결</span>
+                                <span class="tag-pill">#상속분쟁 예방</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div style="width: 300px; display: flex; flex-direction: column; justify-content: center;">
+                        <div style="display: flex; justify-content: space-between; font-size: 0.9rem; margin-bottom: 5px;">
+                            <span style="color: var(--text-sub);">법적/금융 정리 진행률</span>
+                            <span id="detail-progress-percent" style="font-weight: 700; color: var(--status-secure-text);">80%</span>
+                        </div>
+                        <div class="progress-bar-bg">
+                            <div id="detail-progress-bar" class="progress-bar-fill"></div>
+                        </div>
+                        <div id="detail-next-step" style="text-align: right; font-size: 0.8rem; color: var(--text-sub); margin-top: 8px;">
+                            다음 단계: 사후 행정 위임장 날인
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Main Contents split -->
+                <div class="dashboard-grid" style="grid-template-columns: 2fr 1fr;">
+                    
+                    <!-- Left: Priorities -->
+                    <div class="card">
+                        <!-- 1. 법적 정리 -->
+                        <div class="service-category">
+                            <h4 class="category-title">1. 법적 정리 (Will & Legal)</h4>
+                            <div class="service-item">
+                                <div class="service-meta">
+                                    <span class="service-name"><i class="fa-solid fa-scale-balanced" style="color: #555;"></i> Will Wizard (유언장 도우미)</span>
+                                    <span class="service-desc">민법 제1060조 요식주의 검토, 녹음/녹화 증거 확보</span>
+                                </div>
+                                <span class="service-status" style="color: var(--status-secure-text);"><i class="fa-solid fa-check"></i> 법적 효력 확보</span>
+                            </div>
+                            <div class="service-item">
+                                <div class="service-meta">
+                                    <span class="service-name"><i class="fa-solid fa-stamp" style="color: #555;"></i> 유언 공증 (Notarization)</span>
+                                    <span class="service-desc">변호사 공증을 통한 법적 분쟁 원천 차단</span>
+                                </div>
+                                <button class="btn btn-outline" style="font-size: 0.8rem;">공증 사무소 예약</button>
+                            </div>
+                            <div class="service-item">
+                                <div class="service-meta">
+                                    <span class="service-name"><i class="fa-solid fa-file-medical" style="color: #555;"></i> 사전연명의료의향서</span>
+                                    <span class="service-desc">국립연명의료관리기관 등록 확인</span>
+                                </div>
+                                <span class="service-status" style="color: #999;">등록 완료</span>
+                            </div>
+                        </div>
+
+                        <!-- 2. 자산 및 금융 -->
+                        <div class="service-category">
+                            <h4 class="category-title">2. 자산 및 금융 (Finance & Trust)</h4>
+                            <div class="service-item">
+                                <div class="service-meta">
+                                    <span class="service-name"><i class="fa-solid fa-building-columns" style="color: #555;"></i> 신탁 매칭 서비스 (Trust)</span>
+                                    <span class="service-desc">하나은행 치매 안심 신탁 (월 300만원 지급 설정)</span>
+                                </div>
+                                <span class="service-status" style="color: var(--status-secure-text);">계약 체결 완료</span>
+                            </div>
+                            <div class="service-item">
+                                <div class="service-meta">
+                                    <span class="service-name"><i class="fa-solid fa-key" style="color: #555;"></i> 디지털 금고 (Digital Vault)</span>
+                                    <span class="service-desc">가상화폐 지갑 키, 증권 계좌 비밀번호 암호화 보관</span>
+                                </div>
+                                <button class="btn btn-primary" style="font-size: 0.8rem; padding: 6px 12px;">금고 열기 (보안)</button>
+                            </div>
+                            <!-- [추가 요청 사항] 자산 관리 컨설팅 목록 추가 -->
+                            <div class="service-item">
+                                <div class="service-meta">
+                                    <span class="service-name"><i class="fa-solid fa-chart-line" style="color: #555;"></i> 자산 관리 컨설팅 (Asset Consulting)</span>
+                                    <span class="service-desc">전문 자산 관리사와 1:1 맞춤 상담 및 포트폴리오 진단</span>
+                                </div>
+                                <button class="btn btn-outline" style="font-size: 0.8rem;">상담 예약</button>
+                            </div>
+                        </div>
+
+                        <!-- 3. 추모와 기록 (Memorial) -->
+                        <div class="service-category">
+                            <h4 class="category-title" style="color: var(--primary-color);">3. 추모와 기록 (Memorial)</h4>
+                            
+                            <div class="service-item">
+                                <div class="service-meta">
+                                    <span class="service-name"><i class="fa-solid fa-book-journal-whills" style="color: #555;"></i> AI 자서전 (My Life Book)</span>
+                                    <span class="service-desc">매일 질문에 구술 답변, 웅진씽크빅 편집 양장본 제작</span>
+                                </div>
+                                <span class="service-status" style="color: var(--status-wait-text);">집필 중 (15/30일)</span>
+                            </div>
+
+                            <div class="service-item">
+                                <div class="service-meta">
+                                    <span class="service-name"><i class="fa-solid fa-video" style="color: #555;"></i> 영상 유언 스튜디오 (Video Will)</span>
+                                    <span class="service-desc">파주 사옥 내 전문 스튜디오, TED 강연 형식 촬영</span>
+                                </div>
+                                <button class="btn btn-outline" style="font-size: 0.8rem;">스튜디오 예약</button>
+                            </div>
+
+                            <div class="service-item">
+                                <div class="service-meta">
+                                    <span class="service-name"><i class="fa-solid fa-cloud-arrow-up" style="color: #555;"></i> 디지털 추모관</span>
+                                    <span class="service-desc">온라인 추모 공간 생성 및 영상/사진 큐레이션</span>
+                                </div>
+                                <span class="service-status" style="color: #999;">대기 중</span>
+                            </div>
+                        </div>
+
+                        <!-- 4. 아름다운 배웅 (Farewell & Admin) -->
+                        <div class="service-category" style="margin-bottom: 0;">
+                            <h4 class="category-title" style="color: var(--primary-color);">4. 아름다운 배웅 (Farewell Design)</h4>
+                            
+                            <div class="service-item">
+                                <div class="service-meta">
+                                    <span class="service-name"><i class="fa-solid fa-champagne-glasses" style="color: #555;"></i> 사전 장례 디자인 (Pre-Need)</span>
+                                    <span class="service-desc">Living Funeral 파티 기획, 영정사진/BGM/수의(평상복) 선정</span>
+                                </div>
+                                <button class="btn btn-outline" style="font-size: 0.8rem; padding: 6px 12px;">파티 기획서 작성</button>
+                            </div>
+                        </div>
+
+                    </div>
+
+                    <!-- Right Sidebar -->
+                    <div style="display: flex; flex-direction: column; gap: 24px;">
+                        <div class="card">
+                            <div class="card-header" style="margin-bottom: 15px;">
+                                <span class="card-title">보안 문서함</span>
+                                <i class="fa-solid fa-lock" style="color: var(--accent-color);"></i>
+                            </div>
+                            <div style="background: #fafafa; padding: 12px; border-radius: 8px; margin-bottom: 8px; display: flex; align-items: center; justify-content: space-between;">
+                                <span><i class="fa-solid fa-file-contract"></i> 유언 공증 정본</span>
+                                <i class="fa-solid fa-shield-halved" style="color: var(--status-secure-text);"></i>
+                            </div>
+                            <div style="background: #fafafa; padding: 12px; border-radius: 8px; display: flex; align-items: center; justify-content: space-between;">
+                                <span style="color: var(--status-wait-text);"><i class="fa-solid fa-signature"></i> 사후행정 위임장</span>
+                                <span style="font-size: 0.8rem;">미제출</span>
+                            </div>
+                        </div>
+
+                        <!-- Admin Butler Section -->
+                        <div class="card">
+                            <div class="card-header" style="margin-bottom: 15px;">
+                                <span class="card-title">사후 행정 집사 (미리보기)</span>
+                            </div>
+                            <div style="padding: 12px; background: #fafafa; border-radius: 8px; font-size: 0.85rem; color: var(--text-sub);">
+                                장례 발생 시 자동으로 활성화되는 업무 리스트입니다.
+                            </div>
+                            <ul style="margin-top: 10px; padding-left: 20px; font-size: 0.85rem; color: var(--text-main); line-height: 1.6;">
+                                <li>사망신고 (주민센터)</li>
+                                <li>안심상속 원스톱 서비스 신청</li>
+                                <li>국민연금 유족연금 청구</li>
+                                <li>통신/카드/보험 일괄 해지</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </main>
+
+    <script>
+        // Mock Data for Customer List with Detailed Info
+        const customers = [
+            { 
+                id: 1, name: "이순재", age: 82, grade: "Premium", 
+                legal: "공증 완료", trust: "신탁 계약 (하나)", memorial: "자서전 집필 중", 
+                next: "사후 행정 위임장 날인", avatar: "#2c3e50",
+                progress: 80, 
+                tags: ["#유언공증 완료", "#신탁계약 체결", "#상속분쟁 예방"]
+            },
+            { 
+                id: 2, name: "박철민", age: 75, grade: "Basic", 
+                legal: "초안 작성 중", trust: "상담 예정", memorial: "미시작", 
+                next: "신탁 매칭 상담 (14:00)", avatar: "#7f8c8d",
+                progress: 15,
+                tags: ["#초안 작성중", "#신탁상담 필요", "#건강주의"]
+            },
+            { 
+                id: 3, name: "김말순", age: 78, grade: "Premium", 
+                legal: "공증 대기", trust: "계좌 정리 중", memorial: "영상 유언 촬영", 
+                next: "킬 스위치 동의서 징구", avatar: "#d4a373",
+                progress: 45,
+                tags: ["#영상 유언", "#디지털 금고", "#가족 참관"]
+            },
+            { 
+                id: 4, name: "최지훈", age: 85, grade: "Basic", 
+                legal: "갱신 필요", trust: "미가입", memorial: "디지털 추모관", 
+                next: "유언장 수정 미팅", avatar: "#2c3e50",
+                progress: 60,
+                tags: ["#유언장 갱신", "#자산변동", "#리스크 관리"]
+            },
+            { 
+                id: 5, name: "정영희", age: 80, grade: "Standard", 
+                legal: "완료", trust: "신탁 계약 (KB)", memorial: "자서전 탈고", 
+                next: "정기 건강 체크", avatar: "#7f8c8d",
+                progress: 90,
+                tags: ["#자서전 완료", "#사전장례 준비", "#안정적"]
+            },
+            // [추가 요청 사항] 신규 고객 추가
+            { 
+                id: 6, name: "정우성", age: 68, grade: "Premium", 
+                legal: "준비 중", trust: "컨설팅 예정", memorial: "미시작", 
+                next: "자산 관리 컨설팅 (15:00)", avatar: "#2c3e50",
+                progress: 10,
+                tags: ["#신규 고객", "#자산상담 필요", "#은퇴설계"]
+            }
+        ];
+
+        // Init
+        document.addEventListener('DOMContentLoaded', () => {
+            renderCustomerList();
+        });
+
+        // Render List
+        function renderCustomerList() {
+            const tbody = document.getElementById('customer-table-body');
+            let html = '';
+            customers.forEach(c => {
+                // Status Color Logic
+                let legalColor = c.legal.includes("완료") ? 'var(--status-secure-text)' : 'var(--text-sub)';
+                if(c.legal.includes("필요") || c.legal.includes("대기")) legalColor = 'var(--status-wait-text)';
+
+                html += `
+                <tr onclick="loadCustomerDetail(${c.id})">
+                    <td>
+                        <div class="customer-name">
+                            <div class="customer-avatar-small" style="background:${c.avatar}; color: #fff;">${c.name[0]}</div>
+                            ${c.name} (${c.age}세)
+                        </div>
+                    </td>
+                    <td><span class="tag-pill">${c.grade}</span></td>
+                    <td style="color:${legalColor}; font-weight:600;">${c.legal}</td>
+                    <td>${c.trust}</td>
+                    <td>${c.memorial}</td>
+                    <td style="color:var(--primary-color); font-weight:600;">${c.next}</td>
+                </tr>
+                `;
+            });
+            tbody.innerHTML = html;
+        }
+
+        // Load Customer Detail Dynamically
+        function loadCustomerDetail(id) {
+            const customer = customers.find(c => c.id === id);
+            if (!customer) return;
+
+            // Update DOM Elements
+            document.getElementById('detail-name').innerText = `${customer.name} (${customer.age}세)`;
+            document.getElementById('detail-grade-info').innerText = `Chapter & ${customer.grade} | 신탁/법률 집중 관리`;
+            
+            // Update Avatar Color
+            document.getElementById('detail-avatar').style.backgroundColor = customer.avatar;
+
+            // Update Tags
+            const tagsContainer = document.getElementById('detail-tags');
+            tagsContainer.innerHTML = ''; // Clear existing
+            customer.tags.forEach(tag => {
+                const span = document.createElement('span');
+                span.className = 'tag-pill';
+                span.innerText = tag;
+                if(tag.includes("완료") || tag.includes("체결")) {
+                    span.style.background = 'var(--status-secure-bg)';
+                    span.style.color = 'var(--status-secure-text)';
+                }
+                tagsContainer.appendChild(span);
+            });
+
+            // Update Progress
+            document.getElementById('detail-progress-percent').innerText = `${customer.progress}%`;
+            document.getElementById('detail-progress-bar').style.width = `${customer.progress}%`;
+            document.getElementById('detail-next-step').innerText = `다음 단계: ${customer.next}`;
+
+            // Show Page
+            showPage('customer-detail');
+        }
+
+        // SPA Logic
+        function showPage(pageName, element) {
+            // Menu Active State
+            if (element) {
+                document.querySelectorAll('.menu-item').forEach(el => el.classList.remove('active'));
+                element.classList.add('active');
+            } else if (pageName === 'customer-list' || pageName === 'customer-detail') {
+                // Manually set menu active for sub-navigation
+                document.querySelectorAll('.menu-item').forEach(el => el.classList.remove('active'));
+                // Assuming 2nd item is Customer Management
+                document.querySelectorAll('.menu-item')[1].classList.add('active');
+            }
+
+            // Hide all pages
+            document.getElementById('page-dashboard').classList.add('hidden');
+            document.getElementById('page-customer-list').classList.add('hidden');
+            document.getElementById('page-customer-detail').classList.add('hidden');
+
+            // Show selected page
+            const target = document.getElementById('page-' + pageName);
+            if(target) target.classList.remove('hidden');
+
+            // Set Title
+            const titleMap = {
+                'dashboard': '대시보드',
+                'customer-list': '고객 관리',
+                'customer-detail': '고객 상세 관리'
+            };
+            if(titleMap[pageName]) document.getElementById('page-title').innerText = titleMap[pageName];
+        }
+    </script>
+</body>
+</html>
